@@ -1,0 +1,250 @@
+---
+title: "CAPITAL BIKESHARE ANALYSIS SUMMARY"
+author: "Data Pandas"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: true                
+    toc_depth: 3             
+    toc_float: true          
+    number_sections: true   
+    code_folding: show       
+    theme: flatly           
+    highlight: tango        
+    df_print: paged          
+editor_options:
+  chunk_output_type: inline  
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(ezids)
+library(ggplot2)
+library(dplyr)
+library(readr)
+library(tidyr)
+library(lubridate)
+library(gridExtra)
+library(forcats)
+library(stringr)
+```
+
+#**“Pedaling” Data: Identifying Capital Bikeshare User Trends**
+Team Data Pandas: Meghan Casey, Raye Oji, Siddardha (Siddu) Reddy, Siddhant Saxena & Siva Kumar
+#**Abstract**
+
+TBD
+
+#**Introduction of the Research Problem**
+
+One day, Siddu was traveling to his favorite Data Science class at George Washington (GW) University in Washington DC. He took the metro for the first leg of his journey. However, after getting off the metro, there was still a ways to reach GW campus. The weather was beautiful, and the cherry blossoms were just starting to bloom, so he planned to use the city’s public bikeshare program Capital Bikeshare to cover the remaining distance. Unfortunately, there were no bikes available at the station. He had to walk the rest of the way, and rushed into class late. Interestingly, the very next day, he noticed a large number of unused Capital Bikeshare bikes docked near his apartment complex.
+
+Siddu’s experience sparked a discussion with his classmates about the availability and distribution of Capital Bikeshare bikes across the city. We realized this could be a meaningful problem to explore further, and that led us to our main research question: What are the most popular bikeshare stations and how does usage vary by time of day and day of the week? 
+The answers to this question could help inform how the Capital Bikeshare program distributes its resources across the DC metropolitan area, enabling it to better serve members of its community like Siddu and his classmates. 
+
+#**Background Analysis**
+ 
+When Washington DC’s Capital Bikeshare program was introduced in 2010, it was the first city-operated bike sharing system in the US. Since then, Capital Bikeshare users have generated millions of rides. Bike use and the placement of docking stations around the city varies widely. DC’s Department of Transportation has undertaken previous research studies to try to ensure equity in the bikesharing program, which have found that the density of bikeshare infrastructure is higher in affluent neighborhoods and areas with tourist attractions (Su, 2019). Previous studies also show that the share of bicycle commuters in the District has grown by 315 percent since 1990 (Johnston, 2014). Together, these two studies show that biking plays an important part in the DC community.  
+
+#**Our Dataset**
+ 
+Capital Bikeshare publicly releases data about its program on a monthly basis. We chose to analyze the most recent data available which covered the month of January 2025. The data for that month included 285,731 unique observations. Each observation represents one Capital Bikeshare bike ride. Each observation also has nine variables associated with it: the ride identifier, the ride type (electric bike or manual), start time, end time, start location, end location, the station’s names, a unique identifier for each station, and whether or not the rider was a Capital Bikeshare membership holder. 
+ 
+The variables that were most relevant to our research and analysis were those related to time and location. This includes start time, end time, start location, end location, and the station names. We were able to manipulate data on start and end time to create a new variable labeled “trip duration”, enabling us to measure the length of time of each bike ride. Combining location and duration variables with the start and end times of the rides allowed us to conduct comparisons about bike usage on different days of the week and hours of the day. Manipulating the dates included in the raw dataset to categorical variables such as “weekday” and “weekend” also helped illuminate these trends. 
+
+Our decision to analyze the most recently available data had tradeoffs, because it limited our ability to explore trends over a broader stretch of time. For example, we could not explore variance in patterns of usage across different seasons. We intentionally made this choice to prioritize recent information over a more longitudinal dataset because there was such a robust number of observations available for the month of January. Exploring these trends would require combining multiple datasets from Capital Bikeshare’s public repository, and could be a good follow on research project.
+ 
+Another limitation of our dataset is in the ability to address our interest in demand for Capital Bikeshare bikes. We used the number of bike rides associated with each station to identify the most and least popular locations where the service is being utilized. However, as Siddu’s story shows, bikes are not always available for those who wish to use them. This means that we are not fully capturing the demand for bikes, because those who wished to use Capital Bikeshare but were unable to because no bikes were available are not represented in the dataset.
+
+## Lets load the dataset:
+
+We will load rthe dataset and see a few rows.
+
+```{r, include=TRUE, echo=TRUE, results='markup'}
+BikeShare_Data <- data.frame(read.csv("202501-capitalbikeshare-tripdata.csv"))
+head(BikeShare_Data, n=5)
+```
+
+Let's see the structure and summary of the variables in the dataset to get an idea about it.
+
+```{r, include=TRUE, echo=FALSE,results='markup'}
+str(BikeShare_Data)
+summary(BikeShare_Data)
+```
+
+# **Data Preprocessing**
+
+Raw data is often not in the ideal format for analysis, and the Capital Bikeshare dataset is no exception. To ensure meaningful insights, we must clean, transform, and structure the data to align with our analytical needs.
+
+## Removing Unwanted Columns and Converting Data Types
+
+We should remove the unwanted columns like start_lat, start_lng, end_lat, end_lng, start_station_id, end_station_id from our dataset since those columns will be irrelevant. Also, convert the member_casual variable into factor.
+
+```{r, include=TRUE, echo=TRUE,results='markup'}
+
+BikeShare_Data$end_lat <- NULL
+BikeShare_Data$end_lng <- NULL
+BikeShare_Data$start_lat <- NULL
+BikeShare_Data$start_lng <- NULL
+BikeShare_Data$member_casual <- as.factor(BikeShare_Data$member_casual)
+str(BikeShare_Data)
+```
+
+## Handling Duplicates
+
+There might be some duplicate values in the data. These duplicate values will always be a problem in our analysis. Let's remove them.
+
+```{r, include=TRUE, echo=TRUE}
+duplicates_count <- sum(duplicated(BikeShare_Data))
+duplicates_count
+```
+
+There are no duplicate values at all! Capital Bikeshare is maintaining it's data very accurately.
+
+## Handling Missing Values
+
+There will difinately be some rows with a lot of missing values. Since our dataset is huge(280000+), we can remove the missing values. Let's try to identify them, first.
+
+```{r, include=TRUE, echo=TRUE}
+missing_values <- colSums(is.na(BikeShare_Data))
+missing_values
+```
+
+There are many missing values in the columns start_station_id, end_station_id. Since the start station and end station details are crucial for our analysis, its better if we remove the rows where the start station and end station are missing.
+
+```{r, include=TRUE, echo=TRUE}
+BikeShare_Data <- BikeShare_Data[!is.na(BikeShare_Data$start_station_id) & 
+                                 !is.na(BikeShare_Data$end_station_id), ]
+colSums(is.na(BikeShare_Data))
+
+```
+
+## Filtering Rides
+
+There are a few rides which started in 31st Dec 2024 but ended on 1st Jan 2025. We will remove those rows and then put them in an order according to the time they were started at.
+```{r, include=TRUE, echo=TRUE}
+BikeShare_Data <- BikeShare_Data[BikeShare_Data$started_at >= "2025-01-01", ]
+BikeShare_Data$started_at <- as.POSIXct(BikeShare_Data$started_at)
+BikeShare_Data$ended_at <- as.POSIXct(BikeShare_Data$ended_at)
+
+BikeShare_Data <- BikeShare_Data[order(BikeShare_Data$started_at), ]
+nrow(BikeShare_Data)
+
+```
+
+## Removing Outliers
+
+#Note to team I'm leavng space here for updates based on removing the high value outliers that were impacting our mean and SD...
+
+#**Exploratory Data Analysis**
+
+Exploratory Data Analysis (EDA) is an important step before we move into advanced data testing. Through visualizations and summary statistics, EDA helps us understand the data we are working with and allows us to identify key relationships. Insights on ride patterns, peak usage times, and station popularity, enable data-driven decision-making on the Capital Bikeshare program that can benefit its users across DC.
+
+#***Time Oriented EDA***
+
+```{r include = TRUE, echo=FALSE}
+#Since we're interested in when how usage varied, let's look at the number of rides per weekday
+
+ggplot(BikeShare_Data, aes(x = day_of_week, fill = day_of_week)) +
+  geom_bar() +
+  labs(title = "Number of Bike Rides per Weekday",
+       x = "Weekday",
+       y = "Number of Rides") +
+scale_fill_manual(values = c("#b3cde3", "#8c96c6", "#4b6fa5", "#2b5c8a", "#104e8b", "#08306b", "#041e42")) +   # Shades of blue to match our powerpoint!
+  theme_minimal() +
+  theme(legend.position = "none")  
+```
+
+
+More people are using Capital Bikeshare during the week than they over the weekend, which makes sense given the earlier research on the rapid growth of the number of bicycle commuters in the city.
+
+```{r include=TRUE, echo=FALSE, results='markup'}
+#Comparing usage by time of day on weekdays vs. weekends
+
+# Let's group our existing day_of_week variable to create categories for Weekday vs. Weekend for easy comparison
+BikeShare_Data <- BikeShare_Data %>%
+  mutate(day_type = ifelse(day_of_week %in% c("Saturday", "Sunday"), "Weekend", "Weekday"))
+
+ggplot(BikeShare_Data, aes(x = factor(hour_of_day), fill = day_type)) +
+  geom_bar(position = "dodge", color = "black") +
+  facet_wrap(~day_type) +  # Creates separate plots for Weekday and Weekend
+  labs(title = "Bike Usage by Hour: Weekdays vs. Weekends",
+       x = "Hour of the Day",
+       y = "Number of Rides") +
+  scale_fill_manual(values = c("Weekday" = "#87CEEB", "Weekend" = "#0000CD")) +
+  scale_x_discrete(breaks = c("08", "17"))
+theme_minimal()
+```
+
+When we break the data out further to examine it by hour of day and contrast weekdays and weekends, we can see that there’s a huge difference around what appear to be peak commuting times. There are almost 10x as may rides on weekdays at 8AM than there are weekends (1,096 compared to almost 12,000), which is a meaningful difference even we account for the fact that there are more workdays than weekend days in the week. Similarly, there are only 2,760 ride counts at 5PM for weekends at 14,509 for weekdays.
+
+#***Location Oriented EDA***
+
+We are also interested in which locations are the most popular. Since each bike ride is associated with two location variables in our dataset (start location and end location) we can analyze them individually and jointly.
+
+The top five most popular start stations are located at New Hampshire Avenue and T St. NW, Columbus Circle/Union Station, 15th and P St. NW,  the Eastern Market Metro, and 14th and V St. NW. 
+
+The top five most popular end stations are located at Columbus Circle/Union Station, New Hampshire Avenue and T St. NW, 15th and P St. NW, 5th and K St. NW. 
+
+There is a lot overlap between the most popular start and end stations, as there is if we combine these variables to look at the most popular stations overall.
+
+```{r, include=TRUE, echo=TRUE}
+#plotting most popular stations by combined start and stop measure.
+combined_station_data <- BikeShare_Data %>%
+  gather(key = "station_type", value = "station_name", start_station_name, end_station_name) %>%
+  count(station_name, sort = TRUE) %>%
+  top_n(10, n)  # Top 10 stations
+
+# Plot Combined Start and End Stations
+ggplot(combined_station_data, aes(x = reorder(station_name, n), y = n, fill = station_name)) +
+  geom_bar(stat = "identity") +
+  coord_flip() +
+  labs(title = "Top 10 Most Popular Stations",
+       x = "Station",
+       y = "Number of Rides") +
+   guides(fill = "none") +
+  theme_minimal() +
+  scale_fill_manual(values = scales::brewer_pal(palette = "Blues")(10)) 
+```
+
+ 
+This data is most useful if we contrast it with the least-used stations. 
+
+```{r, include=TRUE, echo=TRUE}
+# Finding least popular stations by combined start and stop measure
+least_combined_station_data <- BikeShare_Data %>%
+  gather(key = "station_type", value = "station_name", start_station_name, end_station_name) %>%
+  count(station_name, sort = TRUE) %>%
+  top_n(-10, n)  # Get bottom 10 stations
+
+# Plot Combined Least Used Start and End Stations
+ggplot(least_combined_station_data, aes(x = reorder(station_name, n), y = n, fill = station_name)) +
+  geom_bar(stat = "identity") +
+  coord_flip() +
+  labs(title = "Top 10 Least Used Stations",
+       x = "Station",
+       y = "Number of Rides") +
+  guides(fill = "none") +
+  theme_minimal() +
+  scale_fill_manual(values = scales::brewer_pal(palette = "Reds")(24)) 
+```
+
+Using the same methodology of combining the location data for start and stations and ranking them by least usage reveals a massive difference. Some of the least used BikeShare stations have only a single ride associated with them, while the most frequently used ones have thousands.
+
+#***Trip Duration EDA***
+
+The length of time users spend on bike rides is indirectly related to our key question, because it is related to the data on locations. Shorter bike trip durations indicate shorter physical distances, meaning users are more likely to use stations that are located close together. 
+
+Our initial research found that the mean trip duration for Capital Bikeshare users was 11 minutes, with a standard deviation of 14.9. The sample size for this test (having removed outliers in our initial data processing) was 166,661. 
+
+However, these numbers are odd because the standard deviation is higher than the mean. This indicates a lot of variable and dispersion in our data, some values are much higher and much lower than the mean. Our confidence interval was quite small—we can be 95% confident that the population parameter of the mean falls between 10.96 and 11.11 minutes. Taken together, these measures suggest outliers are having an impact on this measure.
+
+We tried removing very small outliers (those under a minute), because we thought these might be the result of technical errors or faulty bikes. However, that did not change the mean and SD. Then, we tried removing high value outliers (those over an hour). This made a lot more sense. 
+
+After removing the high value outliers, the mean trip duration was 10.26 minutes and the standard deviation was 7.88. This also improved the precision of our confidence interval. We can be 95% confident that the population mean is between 10.22 and 10.23 minutes.
+
+```
+
