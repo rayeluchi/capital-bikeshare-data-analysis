@@ -138,6 +138,26 @@ nrow(BikeShare_Data)
 
 ```
 
+We have created a few new columns named "trip_duration",  which will be helpful for future analysis. Also, we removed the outliers.
+```{r}
+
+BikeShare_Data$trip_duration <- as.numeric(difftime(BikeShare_Data$ended_at, 
+                                                    BikeShare_Data$started_at, 
+                                                    units = "mins"))
+
+BikeShare_Data$hour_of_day <- format(BikeShare_Data$started_at, "%H")
+
+BikeShare_Data$day_of_week <- weekdays(BikeShare_Data$started_at)
+
+BikeShare_Data$day_of_week <- factor(BikeShare_Data$day_of_week, 
+                                     levels = c("Monday", "Tuesday", "Wednesday", 
+                                                "Thursday", "Friday", "Saturday", "Sunday"),
+                                     ordered = TRUE)
+
+BikeShare_Data <- BikeShare_Data[BikeShare_Data$trip_duration > 0 & BikeShare_Data$trip_duration < 720,]
+
+```
+
 ## Removing Outliers
 
 #Note to team I'm leavng space here for updates based on removing the high value outliers that were impacting our mean and SD...
