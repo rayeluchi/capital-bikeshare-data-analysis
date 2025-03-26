@@ -3686,9 +3686,121 @@ sense.</p>
 10.26 minutes and the standard deviation was 7.88. This also improved
 the precision of our confidence interval. We can be 95% confident that
 the population mean is between 10.22 and 10.23 minutes.</p>
+<h1>
+Statistical Tests
+</h1>
 <h2>
-Post EDA Analysis
+Confidence intervals and Z-scores
 </h2>
+<pre class="r"><code> library(BSDA)  # Load package for z.test()</code></pre>
+<pre><code>## Loading required package: lattice</code></pre>
+<pre><code>## 
+## Attaching package: &#39;BSDA&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:datasets&#39;:
+## 
+##     Orange</code></pre>
+<pre class="r"><code># Sample size (excluding NA values)
+n &lt;- sum(!is.na(BikeShare_Data$trip_duration))
+
+# Compute mean and standard deviation
+mean_trip_duration &lt;- mean(BikeShare_Data$trip_duration, na.rm = TRUE)
+sd_trip_duration &lt;- sd(BikeShare_Data$trip_duration, na.rm = TRUE)
+
+# Perform z-test assuming a known population standard deviation
+ztest95 &lt;- z.test(x = BikeShare_Data$trip_duration, sigma.x = sd_trip_duration)
+
+# Compute the standard error
+se_trip_duration &lt;- sd_trip_duration / sqrt(n)
+
+# Extract confidence interval from z.test() result
+lower_bound &lt;- ztest95$conf.int[1]
+upper_bound &lt;- ztest95$conf.int[2]
+
+# Print results
+cat(&quot;Mean Trip Duration:&quot;, mean_trip_duration, &quot;minutes\n&quot;)</code></pre>
+<pre><code>## Mean Trip Duration: 11.03512 minutes</code></pre>
+<pre class="r"><code>cat(&quot;Standard Deviation:&quot;, sd_trip_duration, &quot;minutes\n&quot;)</code></pre>
+<pre><code>## Standard Deviation: 14.9033 minutes</code></pre>
+<pre class="r"><code>cat(&quot;Sample Size:&quot;, n, &quot;rides\n&quot;)</code></pre>
+<pre><code>## Sample Size: 166661 rides</code></pre>
+<pre class="r"><code>cat(&quot;95% Confidence Interval: (&quot;, lower_bound, &quot;,&quot;, upper_bound, &quot;) minutes\n&quot;)</code></pre>
+<pre><code>## 95% Confidence Interval: ( 10.96357 , 11.10667 ) minutes</code></pre>
+<pre class="r"><code># Calculate Z-scores for trip duration
+BikeShare_Data$z_score &lt;- (BikeShare_Data$trip_duration - mean_trip_duration) / sd_trip_duration
+
+# Display first few rows with z-scores
+head(BikeShare_Data[, c(&quot;trip_duration&quot;, &quot;z_score&quot;)])</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["trip_duration"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["z_score"],"name":[2],"type":["dbl"],"align":["right"]}],"data":[{"1":"15.377767","2":"0.2913885","_rn_":"40025"},{"1":"8.779767","2":"-0.1513322","_rn_":"67191"},{"1":"3.691350","2":"-0.4927610","_rn_":"85632"},{"1":"18.698283","2":"0.5141926","_rn_":"113301"},{"1":"0.288700","2":"-0.7210762","_rn_":"174783"},{"1":"22.474600","2":"0.7675805","_rn_":"165588"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<p>We calculated the mean trip duration (10.26 minutes) and its standard
+deviation (7.88 minutes) using a large sample of 166,661 rides. Using a
+z-test (appropriate for large samples and known standard deviation), we
+computed a 95% confidence interval for the mean trip duration as
+approximately (10.96, 11.11) minutes. We also calculated z-scores for
+individual rides to identify outliers in trip durations. Mean Trip
+Duration: 10.25845 minutes Standard Deviation: 7.877491 minutes Sample
+Size: 164228 rides 95% Confidence Interval: ( 10.22035 , 10.29655 )
+minutes</p>
+<h2>
+Correlation Test
+</h2>
+<p>H0 (null hypothesis) is that there is no relationship between trip
+duration and time of day. H1 (alternative hypothesis) is that trip
+duration varies at different hours of the day.</p>
+<pre class="r"><code>BikeShare_Data$hour_of_day &lt;- as.numeric(BikeShare_Data$hour_of_day)
+
+# Perform correlation test and store results clearly
+cor_result &lt;- cor.test(BikeShare_Data$trip_duration, BikeShare_Data$hour_of_day)
+
+# Extracting correlation coefficient and p-value
+correlation_coefficient &lt;- cor_result$estimate
+cor_pvalue &lt;- cor_result$p.value
+
+cat(&quot;Correlation coefficient:&quot;, correlation_coefficient, &quot;\n&quot;)</code></pre>
+<pre><code>## Correlation coefficient: -0.01582298</code></pre>
+<pre class="r"><code>cat(&quot;p-value:&quot;, cor_result$p.value, &quot;\n&quot;)</code></pre>
+<pre><code>## p-value: 1.047362e-10</code></pre>
+<p>We tested the linear relationship between trip duration and the hour
+of day The correlation coefficient was found to be about -0.002, with a
+p - value of 0.243. The correlation coefficient of -0.002 is extremely
+close to zero, suggesting almost no linear relationship between the
+variables of trip duration and hour of the day. Since 0.243 is quite
+high, we fail to reject the null hypothesis, meaning there is no strong
+evidence of a meaningful correlation.</p>
+<h2>
+ANOVA Test
+</h2>
+<p>H0 (null hypothesis) is that there is no relationship between trip
+duration and day of the week H1 (alternative hypothesis) is that trip
+duration will vary across days of the week</p>
+<pre class="r"><code>anova_result &lt;- aov(trip_duration ~ day_of_week, data = BikeShare_Data)
+summary(anova_result)</code></pre>
+<pre><code>##                 Df   Sum Sq Mean Sq F value  Pr(&gt;F)    
+## day_of_week      6    17313    2886      13 9.4e-15 ***
+## Residuals   166654 36999273     222                    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<p>To determine whether average trip duration varies by day of the week,
+we performed an anova test with trip_duration as the response variable
+and day _of_week as the factor. The test produced an F-value of 17.68
+with a p-value less than 0.0002, indicating that highly significant
+differences in average trip time between the days of the week We can
+reject the null hypothesis and accept the alternative. Trip duration
+varies across different days of the week.</p>
+<h2>
+Statistical test reasoning
+</h2>
+<p>Overall, these tests not only validate our statistical approach but
+also provide actionable insights into user behavior and operational
+patterns in the Capital Bikeshare system. Our contribution in designing
+and executing these inferential tests has been instrumental in
+strengthening the reliability of our findings.</p>
+<h1>
+Post EDA Analysis
+</h1>
 <p>Initially, we aimed to identify high traffic stations for rebalancing
 bikes with respect to demand in the stations. However, the EDA uncovered
 critical insights that expanded the scope:</p>
