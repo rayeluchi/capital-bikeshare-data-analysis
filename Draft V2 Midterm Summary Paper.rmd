@@ -617,7 +617,7 @@ Ultimately, our findings reinforce the importance of a flexible, reactive approa
     </li> 
     
     <li>
-        <p>All these are questions that were raised at various points of our exploratory data analysis that we would recommend Capital Bikeshare to pursue. We believe that given their access to more data and resources, the results from these questions would go even further in optimizing their services and the business as a whole.</p> 
+        <p>All these are questions that were raised at various points of our exploratory data analysis that we would recommend Capital Bikeshare to pursue. We believe that given their access to more data and resources, the results from these questions would go even further in optimizing their services and business as a whole.</p> 
     </li>
     
 </ol>
