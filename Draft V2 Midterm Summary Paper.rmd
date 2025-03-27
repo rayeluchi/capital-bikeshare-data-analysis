@@ -615,12 +615,9 @@ Ultimately, our findings reinforce the importance of a flexible, reactive approa
         <strong>Interactions with Other Means of Transportation: How does bikeshare usage interact with other forms of public transit, and how can bike station placements ensure commuters remain supported through all legs of their journey?</strong>
         <p>Many bikeshare users like Siddu rely on bikes for the “last mile” of their commute, particularly when traveling to or from metro stations and bus stops. However, our study did not directly measure how bikeshare usage integrates with public transportation. Examining trip start and end locations in relation to transit hubs could help optimize station placement to enhance connections and reduce commuter stress.</p> 
     </li> 
+    </ol>
     
-    <li>
-        <p>All these are questions that were raised at various points of our exploratory data analysis that we would recommend Capital Bikeshare to pursue. We believe that given their access to more data and resources, the results from these questions would go even further in optimizing their services and business as a whole.</p> 
-    </li>
-    
-</ol>
+All these are questions that were raised at various points of our exploratory data analysis that we would recommend Capital Bikeshare to pursue. We believe that given their access to more data and resources, the results from these questions would go even further in optimizing their services and business as a whole.
 
 
 <h1>Sources</h1>
