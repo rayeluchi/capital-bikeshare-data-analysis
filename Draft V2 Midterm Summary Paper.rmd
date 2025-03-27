@@ -574,10 +574,6 @@ Our analysis of Capital Bikeshare user trends provides meaningful insights into 
 
 Our statistical analyses further improved our understanding of bikeshare usage. The ANOVA test revealed significant variation in trip duration by day of the week, highlighting the need for dynamic redistribution strategies tailored differently for weekday commuters and weekend leisure riders. The correlation test, however, showed no strong relationship between trip duration and time of day, reinforcing the notion that bike usage patterns are primarily determined by station location and the purpose of the journey, rather than by specific trip lengths.
 
-
-While our study provides valuable insights, there are limitations that present opportunities for future research. For example, our dataset only captures successful bike rides, meaning that instances of unmet demand where riders could not find an available bike (like Siddu at the start of the project) have no way of being recorded. Additionally, because our analysis focused on January 2025 data, we were unable to explore potential seasonal variations in bike usage. 
-For next steps, we recommend further investigation into bikeshare demand at industrial/work-centric areas versus tourist-heavy areas, particularly to assess whether additional stations or bike reallocations are needed in employment hubs. Additionally, a survey-based approach could complement our quantitative analysis by capturing qualitative data from users who were unable to complete a ride due to lack of bike availability.
-
 Ultimately, our findings reinforce the importance of a flexible, reactive approach to bikeshare operations. By shifting to a system that accounts for demand peaks, user demographics, and trip variability, Capital Bikeshare can enhance its efficiency and better meet the needs of its users. This will ensure that the bikeshare system continues to be a reliable, accessible, and sustainable transportation option for all DC residents and visitors. 
 
 <h1>Future Works</h1>
@@ -617,8 +613,13 @@ Ultimately, our findings reinforce the importance of a flexible, reactive approa
 
     <li>
         <strong>Interactions with Other Means of Transportation: How does bikeshare usage interact with other forms of public transit, and how can bike station placements ensure commuters remain supported through all legs of their journey?</strong>
-        <p>Many bikeshare users like Siddu rely on bikes for the “last mile” of their commute, particularly when traveling to or from metro stations and bus stops. However, our study did not directly measure how bikeshare usage integrates with public transportation. Examining trip start and end locations in relation to transit hubs could help optimize station placement to enhance connections and reduce commuter stress.</p>
+        <p>Many bikeshare users like Siddu rely on bikes for the “last mile” of their commute, particularly when traveling to or from metro stations and bus stops. However, our study did not directly measure how bikeshare usage integrates with public transportation. Examining trip start and end locations in relation to transit hubs could help optimize station placement to enhance connections and reduce commuter stress.</p> 
+    </li> 
+    
+    <li>
+        <p>All these are questions that were raised at various points of our exploratory data analysis that we would recommend Capital Bikeshare to pursue. We believe that given their access to more data and resources, the results from these questions would go even further in optimizing their services and the business as a whole.</p> 
     </li>
+    
 </ol>
 
 
