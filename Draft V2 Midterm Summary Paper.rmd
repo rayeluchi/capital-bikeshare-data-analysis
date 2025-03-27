@@ -9,8 +9,8 @@ output:
     toc_float: true          
     number_sections: true   
     code_folding: show       
-    theme: cosmo           
-    highlight: textmate        
+    theme: flatly           
+    highlight: tango        
     df_print: paged
 editor_options:
   chunk_output_type: inline  
@@ -229,9 +229,9 @@ Capital Bikeshare publicly releases data about its program on a monthly basis. W
 
 The variables that were most relevant to our research and analysis were those related to time and location. This includes start time, end time, start location, end location, and the station names. We were able to manipulate data on start and end time to create a new variable labeled “trip duration”, enabling us to measure the length of time of each bike ride. Combining location and duration variables with the start and end times of the rides allowed us to conduct comparisons about bike usage on different days of the week and hours of the day. Manipulating the dates included in the raw dataset to categorical variables such as “weekday” and “weekend” also helped illuminate these trends.
 
-Our decision to analyze the most recently available data had tradeoffs, because it limited our ability to explore trends over a broader stretch of time. For example, we could not explore variance in patterns of usage across different seasons. We intentionally made this choice to prioritize recent information over a more longitudinal dataset because there was such a robust number of observations available for the month of January. Exploring these trends would require combining multiple datasets from Capital Bikeshare’s public repository, and could be a good follow on research project.
+Our decision to analyze the most recently available data had trade offs, because it limited our ability to explore trends over a broader stretch of time. For example, we could not explore variance in patterns of usage across different seasons. We intentionally made this choice to prioritize recent information over a more longitudinal dataset because there was such a robust number of observations available for the month of January. Exploring these trends would require combining multiple datasets from Capital Bikeshare’s public repository, and could be a good follow on research project.
 
-Another limitation of our dataset is in the ability to address our interest in demand for Capital Bikeshare bikes. We used the number of bike rides associated with each station to identify the most and least popular locations where the service is being utilized. However, as Siddu’s story shows, bikes are not always available for those who wish to use them. This means that we are not fully capturing the demand for bikes, because those who wished to use Capital Bikeshare but were unable to because no bikes were available are not represented in the dataset.
+Another limitation of our dataset is in the ability to address our interest in demand for Capital Bikeshare bikes. We used the number of bike rides associated with each station to identify the most and least popular locations where the service is being utilized. However, as Siddu’s story shows, bikes are not always available for those who wish to use them. This means that we are not fully capturing the demand for bikes, because those who wished to use Capital Bikeshare but were unable to do so because no bikes were available for most people and hence, they are not represented in the dataset.
 
 <h2>Lets load the dataset:</h2>
 We will load the dataset and see a few rows.
@@ -243,15 +243,21 @@ head(BikeShare_Data, n=5)
 
 Let's see the structure and summary of the variables in the dataset to get an idea about it.
 
+
 ```{r, include=TRUE, echo=FALSE,results='markup'}
+print("The structure of the dataset:")
 str(BikeShare_Data)
+
+print("The summary of the dataset:")
 summary(BikeShare_Data)
 ```
 
 <h1>Data Preprocessing</h1>
+
 Raw data is often not in the ideal format for analysis, and the Capital Bikeshare dataset is no exception. To ensure meaningful insights, we must clean, transform, and structure the data to align with our analytical needs.
 
 <h2>Removing Unwanted Columns and Converting Data Types</h2>
+
 We should remove the unwanted columns like start_lat, start_lng, end_lat, end_lng, start_station_id, end_station_id from our dataset since those columns will be irrelevant. Also, convert the member_casual variable into factor.
 
 ```{r, include=TRUE, echo=TRUE,results='markup'}
@@ -266,6 +272,7 @@ str(BikeShare_Data)
 
 
 <h2>Handling Duplicates</h2>
+
 There might be some duplicate values in the data. These duplicate values will always be a problem in our analysis. Let's remove them.
 
 ```{r, include=TRUE, echo=TRUE}
@@ -277,6 +284,7 @@ duplicates_count
 There are no duplicate values at all! Capital Bikeshare is maintaining it's data very accurately.
 
 <h2>Handling Missing Values</h2>
+
 There will definitely be some rows with a lot of missing values. Since our dataset is huge(280000+), we can remove the missing values. Let's try to identify them, first.
 
 
@@ -309,9 +317,13 @@ nrow(BikeShare_Data)
 
 ```
 
-We have created a few new columns named "trip_duration",  which will be helpful for future analysis. Also, we removed the outliers.
+<h2>Removing Outliers</h2>
 
-```{r}
+There are many trips whose duration is either less than a minute or hours. This doesn't make sense, right?. Let's remove those outliers now.
+
+We will create a new variable to calculate the trip duration and then filter out the outliers.
+
+```{r, include=TRUE, echo=TRUE,results='markup'}
 
 BikeShare_Data$trip_duration <- as.numeric(difftime(BikeShare_Data$ended_at, 
                                                     BikeShare_Data$started_at, 
@@ -326,13 +338,11 @@ BikeShare_Data$day_of_week <- factor(BikeShare_Data$day_of_week,
                                                 "Thursday", "Friday", "Saturday", "Sunday"),
                                      ordered = TRUE)
 
-BikeShare_Data <- BikeShare_Data[BikeShare_Data$trip_duration > 0 & BikeShare_Data$trip_duration < 720,]
+BikeShare_Data <- BikeShare_Data[BikeShare_Data$trip_duration > 1 & BikeShare_Data$trip_duration <= 60,]
 
+head(BikeShare_Data)
 ```
 
-<h2>Removing Outliers</h2>
-
-#Note to team I'm leavng space here for updates based on removing the high value outliers that were impacting our mean and SD...
 
 
 <h1>Exploratory Data Analysis</h1>
@@ -356,22 +366,25 @@ scale_fill_manual(values = c("#b3cde3", "#8c96c6", "#4b6fa5", "#2b5c8a", "#104e8
 
 More people are using Capital Bikeshare during the week than they over the weekend, which makes sense given the earlier research on the rapid growth of the number of bicycle commuters in the city.
 
-```{r include=TRUE, echo=FALSE, results='markup'}
+```{r include=TRUE, echo=FALSE, results='markup', message=FALSE, warning=FALSE}
 #Comparing usage by time of day on weekdays vs. weekends
 
 # Let's group our existing day_of_week variable to create categories for Weekday vs. Weekend for easy comparison
 BikeShare_Data <- BikeShare_Data %>%
   mutate(day_type = ifelse(day_of_week %in% c("Saturday", "Sunday"), "Weekend", "Weekday"))
 
-ggplot(BikeShare_Data, aes(x = factor(hour_of_day), fill = day_type)) +
+p <- ggplot(BikeShare_Data, aes(x = factor(hour_of_day), fill = day_type)) +
   geom_bar(position = "dodge", color = "black") +
-  facet_wrap(~day_type) +  # Creates separate plots for Weekday and Weekend
+  facet_wrap(~day_type) +
   labs(title = "Bike Usage by Hour: Weekdays vs. Weekends",
        x = "Hour of the Day",
        y = "Number of Rides") +
   scale_fill_manual(values = c("Weekday" = "#87CEEB", "Weekend" = "#0000CD")) +
-  scale_x_discrete(breaks = c("08", "17"))
-theme_minimal()
+  scale_x_discrete(breaks = c("08", "17")) +
+  theme_minimal()
+
+print(p)
+
 ```
 
 When we break the data out further to examine it by hour of day and contrast weekdays and weekends, we can see that there’s a huge difference around what appear to be peak commuting times. There are almost 10x as may rides on weekdays at 8AM than there are weekends (1,096 compared to almost 12,000), which is a meaningful difference even we account for the fact that there are more workdays than weekend days in the week. Similarly, there are only 2,760 ride counts at 5PM for weekends at 14,509 for weekdays.
@@ -388,7 +401,7 @@ The top five most popular end stations are located at Columbus Circle/Union Stat
 There is a lot overlap between the most popular start and end stations, as there is if we combine these variables to look at the most popular stations overall.
 
 
-```{r, include=TRUE, echo=TRUE}
+```{r, include=TRUE, echo=TRUE, warning=FALSE}
 #plotting most popular stations by combined start and stop measure.
 combined_station_data <- BikeShare_Data %>%
   gather(key = "station_type", value = "station_name", start_station_name, end_station_name) %>%
@@ -409,7 +422,7 @@ ggplot(combined_station_data, aes(x = reorder(station_name, n), y = n, fill = st
 
 This data is most useful if we contrast it with the least-used stations.
 
-```{r, include=TRUE, echo=TRUE}
+```{r, include=TRUE, echo=TRUE, warning=FALSE}
 # Finding least popular stations by combined start and stop measure
 least_combined_station_data <- BikeShare_Data %>%
   gather(key = "station_type", value = "station_name", start_station_name, end_station_name) %>%
@@ -447,7 +460,7 @@ After removing the high value outliers, the mean trip duration was 10.26 minutes
 
 <h2>Confidence intervals and Z-scores</h2>
 
-```{r}
+```{r, message=FALSE}
  library(BSDA)  # Load package for z.test()
 
 # Sample size (excluding NA values)
@@ -483,6 +496,7 @@ head(BikeShare_Data[, c("trip_duration", "z_score")])
 
 We calculated the mean trip duration (10.26 minutes) and its standard deviation (7.88 minutes) using a large sample of 166,661 rides.
 Using a z-test (appropriate for large samples and known standard deviation), we computed a 95% confidence interval for the mean trip duration as approximately (10.96, 11.11) minutes.
+
 We also calculated z-scores for individual rides to identify outliers in trip durations.
 Mean Trip Duration: 10.25845 minutes
 Standard Deviation: 7.877491 minutes
@@ -493,10 +507,12 @@ Sample Size: 164228 rides
 
 <h2>Correlation Test</h2>
 
+Let,s perform the Correlation test between the Trip duration and Hour of the day. Let's see if they have any linear relationship.
+
 H0 (null hypothesis) is that there is no relationship between trip duration and time of day.
 H1 (alternative hypothesis) is that trip duration varies at different hours of the day.
 
-```{r}
+```{r, message=FALSE}
 BikeShare_Data$hour_of_day <- as.numeric(BikeShare_Data$hour_of_day)
 
 # Perform correlation test and store results clearly
@@ -518,11 +534,13 @@ Since 0.243 is quite high, we fail to reject the null hypothesis, meaning there 
 
 <h2>ANOVA Test</h2>
 
+Now, We will perform the ANOVA test between Trip duration and the day of the week to determine whether the average trip duration varies by the day of the week.
+
 H0 (null hypothesis) is that there is no relationship between trip duration and day of the week
 H1 (alternative hypothesis) is that trip duration will vary across days of the week
 
 
-```{r}
+```{r, message=FALSE}
 anova_result <- aov(trip_duration ~ day_of_week, data = BikeShare_Data)
 summary(anova_result)
 
@@ -553,16 +571,22 @@ These analyses helped us reading temporal patterns, user preferences, and trip-b
 <h1>Conclusion</h1>
 
 Our analysis of Capital Bikeshare user trends provides meaningful insights into station popularity, peak usage times, trip duration patterns, and differences between casual and membership-based riders. These findings directly inform strategies for properly advertizing Capital Bikeshare and optimizing bike inventory management, ensuring that the system effectively serves as many users as possible. Through our exploration of station usage, we identified key high-traffic locations, particularly those near major transit hubs and densely populated areas. By understanding that the number of riders on weekdays spikes during morning and evening rush hours, Capital Bikeshare can enhance its bike redistribution efforts, prioritizing these stations at critical commuting times. On the other hand, lower weekend usage and longer trip durations suggest a shift in user behavior towards leisurely biking, indicating the need for a different distribution model on weekends. This is especially important for future investigations, as we began to question our assumption that high weekday usage was due to work commutes. If this high weekday usage can be attributed to factors other than work commutes, that would mean we need to investigate those factors and how we can address them for maximum efficiency. 
+
 Our statistical analyses further improved our understanding of bikeshare usage. The ANOVA test revealed significant variation in trip duration by day of the week, highlighting the need for dynamic redistribution strategies tailored differently for weekday commuters and weekend leisure riders. The correlation test, however, showed no strong relationship between trip duration and time of day, reinforcing the notion that bike usage patterns are primarily determined by station location and the purpose of the journey, rather than by specific trip lengths.
+
+While our study provides valuable insights, there are limitations that present opportunities for future research. For example, our dataset only captures successful bike rides, meaning that unmet demand—instances where riders could not find an available bike, like Siddu at the start of the project—has no way of being recorded. Additionally, because our analysis focused on January 2025 data, we were unable to explore potential seasonal variations in bike usage. Future studies could integrate data across multiple months or years to analyze trends over time and capture fluctuations due to weather, policy changes, or other unknown factors.
+
 While our study provides valuable insights, there are limitations that present opportunities for future research. For example, our dataset only captures successful bike rides, meaning that instances of unmet demand where riders could not find an available bike (like Siddu at the start of the project) have no way of being recorded. Additionally, because our analysis focused on January 2025 data, we were unable to explore potential seasonal variations in bike usage. Future studies could integrate data across multiple months or years to analyze trends over time and capture fluctuations due to weather, policy changes, or other unknown factors.
 For next steps, we recommend further investigation into bikeshare demand at industrial/work-centric areas versus tourist-heavy areas, particularly to assess whether additional stations or bike reallocations are needed in employment hubs. Additionally, a survey-based approach could complement our quantitative analysis by capturing qualitative data from users who were unable to complete a ride due to lack of bike availability.
+
 Ultimately, our findings reinforce the importance of a flexible, reactive approach to bikeshare operations. By shifting to a system that accounts for demand peaks, user demographics, and trip variability, Capital Bikeshare can enhance its efficiency and better meet the needs of its users. This will ensure that the bikeshare system continues to be a reliable, accessible, and sustainable transportation option for all DC residents and visitors.
 
-<h2>Sources</h2>
+<h1>Sources</h1>
 
 Johnston, K. (2014). Beyond Urban Planning: The Economics of Capital Bikeshare. https://gppreview.com/2014/04/07/beyond-urban-planning-the-economics-of-capital-bikeshare/.
  
-Su, Y., & Wang, R. (2019). Three ways bikeshare can counteract, not reinforce, DC's disparities.https://www.urban.org/urban-wire/three-ways-bikeshare-can-counteract-not-reinforce-dcs-disparities.
+Su, Y., & Wang, R. (2019). Three ways bikeshare can counteract, not reinforce, DC's disparities.
+https://www.urban.org/urban-wire/three-ways-bikeshare-can-counteract-not-reinforce-dcs-disparities.
 
 
 
