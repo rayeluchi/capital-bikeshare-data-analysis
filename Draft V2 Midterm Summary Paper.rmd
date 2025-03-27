@@ -576,10 +576,52 @@ Our statistical analyses further improved our understanding of bikeshare usage. 
 
 While our study provides valuable insights, there are limitations that present opportunities for future research. For example, our dataset only captures successful bike rides, meaning that unmet demand—instances where riders could not find an available bike, like Siddu at the start of the project—has no way of being recorded. Additionally, because our analysis focused on January 2025 data, we were unable to explore potential seasonal variations in bike usage. Future studies could integrate data across multiple months or years to analyze trends over time and capture fluctuations due to weather, policy changes, or other unknown factors.
 
-While our study provides valuable insights, there are limitations that present opportunities for future research. For example, our dataset only captures successful bike rides, meaning that instances of unmet demand where riders could not find an available bike (like Siddu at the start of the project) have no way of being recorded. Additionally, because our analysis focused on January 2025 data, we were unable to explore potential seasonal variations in bike usage. Future studies could integrate data across multiple months or years to analyze trends over time and capture fluctuations due to weather, policy changes, or other unknown factors.
+While our study provides valuable insights, there are limitations that present opportunities for future research. For example, our dataset only captures successful bike rides, meaning that instances of unmet demand where riders could not find an available bike (like Siddu at the start of the project) have no way of being recorded. Additionally, because our analysis focused on January 2025 data, we were unable to explore potential seasonal variations in bike usage. 
 For next steps, we recommend further investigation into bikeshare demand at industrial/work-centric areas versus tourist-heavy areas, particularly to assess whether additional stations or bike reallocations are needed in employment hubs. Additionally, a survey-based approach could complement our quantitative analysis by capturing qualitative data from users who were unable to complete a ride due to lack of bike availability.
 
-Ultimately, our findings reinforce the importance of a flexible, reactive approach to bikeshare operations. By shifting to a system that accounts for demand peaks, user demographics, and trip variability, Capital Bikeshare can enhance its efficiency and better meet the needs of its users. This will ensure that the bikeshare system continues to be a reliable, accessible, and sustainable transportation option for all DC residents and visitors.
+Ultimately, our findings reinforce the importance of a flexible, reactive approach to bikeshare operations. By shifting to a system that accounts for demand peaks, user demographics, and trip variability, Capital Bikeshare can enhance its efficiency and better meet the needs of its users. This will ensure that the bikeshare system continues to be a reliable, accessible, and sustainable transportation option for all DC residents and visitors. 
+
+<h1>Future Works</h1>
+
+<p>Though briefly touched on in previous sections, we want to emphasize that we recognize the immense potential our project has for further development in the future. Specifically, our team has derived the following questions from this EDA:</p>
+
+<ol>
+    <li>
+        <strong>Unmet Demand: How often do users encounter empty or full bikeshare stations, and how does this impact the public’s opinion of Capital Bikeshare?</strong>
+        <p>Returning once again to the anecdote that started our project, it is possible that users who frequently encounter empty bike stations are likely to lose their trust in Capital Bikeshare and utilize the bikes less frequently even if they see them at other stations. Figuring out a way to capture the experiences of these individuals, e.g. through surveys, would go a long way in combating dissatisfaction like that which Siddu faced earlier.</p>
+    </li>
+    
+    <li>
+        <strong>Seasonal Trends: How do bikeshare usage patterns vary across different seasons, and what adjustments can be made for weather-induced usage fluctuations?</strong>
+        <p>Future studies could integrate data across multiple months or years to analyze trends over time and capture fluctuations in ridership due to weather, policy changes, or other external factors.</p>
+    </li>
+    
+    <li>
+        <strong>E-Bike Optimization: Should Capital Bikeshare allocate more e-bikes versus manual bikes to certain areas to better match demand?</strong>
+        <p>Our insights into e-bike versus manual bike preferences suggest potential for strategic e-bike allocation. Casual riders demonstrated a higher preference for e-bikes compared to members, raising the question of whether certain stations—particularly those in tourist-heavy locations—should receive a higher proportion of e-bikes to better meet demand.</p>
+    </li>
+    
+    <li>
+        <strong>Work vs. Tourism Demand: Do stations near employment centers experience significantly different usage patterns compared to those in tourist-heavy locations?</strong>
+        <p>Our findings suggest that bikeshare usage is highly time-sensitive, with clear commuting peaks during weekday mornings and evenings. However, stations in tourist-heavy areas may follow a different pattern, with more consistent usage throughout the day. By analyzing data across different station types, we could determine whether work-based demand and leisure-based demand require different bike distribution strategies.</p>
+    </li>
+    
+    <li>
+        <strong>Impact of Membership Programs: What factors influence a rider’s decision to become a Capital Bikeshare member, and how can membership benefits be optimized?</strong>
+        <p>We observed that casual riders tend to use e-bikes more frequently than members, but trip duration did not vary significantly between the two groups. This raises questions about what actually drives membership adoption. Future research could explore whether pricing structures, promotional advertisements, or other benefits influence the decision to transition from a casual user to a member, helping Capital Bikeshare refine its marketing strategies.</p>
+    </li>
+    
+    <li>
+        <strong>Equity and Accessibility: How does bikeshare accessibility vary by neighborhood, and are underserved areas adequately supported by the current station distribution?</strong>
+        <p>Previous research has shown that bikeshare infrastructure tends to be more concentrated in affluent areas. Our own dataset demonstrated large discrepancies in station usage, with some stations seeing thousands of rides while others had barely any. Future work could investigate whether station distribution effectively serves lower-income communities and whether targeted expansion could improve transportation equity.</p>
+    </li>
+
+    <li>
+        <strong>Interactions with Other Means of Transportation: How does bikeshare usage interact with other forms of public transit, and how can bike station placements ensure commuters remain supported through all legs of their journey?</strong>
+        <p>Many bikeshare users like Siddu rely on bikes for the “last mile” of their commute, particularly when traveling to or from metro stations and bus stops. However, our study did not directly measure how bikeshare usage integrates with public transportation. Examining trip start and end locations in relation to transit hubs could help optimize station placement to enhance connections and reduce commuter stress.</p>
+    </li>
+</ol>
+
 
 <h1>Sources</h1>
 
