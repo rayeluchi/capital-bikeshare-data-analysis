@@ -1,10 +1,6 @@
-Mid Term Project Info:
+# “Pedaling” Data: Identifying Capital Bikeshare User Trends
+Download to view final report: https://github.com/rayeluchi/capital-bikeshare-data-analysis/blob/main/Draft-V2-Midterm-Summary-Paper.html 
 
-Members:
-Siddardha
-Meghan
-Siva
-Raye
-Siddhant
+This study analyzes January 2025 data from Capital Bikeshare to identify high demand stations and temporal usage patterns in the Washington Metropolitan Area, informing strategies to optimize bike rebalancing and dock adjustments. Our analysis involved a deep dive into Capital Bike Share’s usage data, using a variety of visualizations and statistical methods to uncover demand patterns and station utilization by time of day and day of the week.
 
-
+The project’s goal was to develop actionable insights for prioritizing bike redistribution and dock adjustments, ensuring riders encounter fewer availability issues. We used data visualizations and a variety of sophisticated statistical methods, such as z-tests, correlation analysis, and ANOVA, to accomplish this, identifying temporal demand peaks, evaluating trip duration variability, and uncovering station specific usage patterns critical for operational adjustments. This analysis provides a framework for Capital Bikeshare to enhance resource allocation strategies, balancing efficiency with rider satisfaction, and lays the groundwork for future research integrating multi month datasets to refine seasonal rebalancing protocols.
